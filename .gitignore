@@ -7,3 +7,5 @@ docker-compose.yml
 makefile
 database.yml
 db-data/
+
+migrations/*api*
