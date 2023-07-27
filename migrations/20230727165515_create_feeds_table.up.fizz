@@ -1,0 +1,16 @@
+create_table("feeds") {
+    t.Column("id", "integer", {primary: true})
+    t.Column("name", "string", {"null": false})
+    t.Column("url", "string", {"unique": true, "null": false})
+    t.Column("user_id", "integer", {})
+    t.ForeignKey("user_id", {"users": ["id"]}, {"on_delete": "cascade"})
+}
+
+
+sql(`
+    CREATE TRIGGER set_timestamp
+        BEFORE UPDATE on feeds
+        FOR EACH ROW
+    EXECUTE PROCEDURE trigger_set_timestamp();
+`)
+
