@@ -10,8 +10,10 @@ import (
 	"github.com/ardanlabs/conf"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
+
 	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
+	"github.com/wtran29/go-rss/internal/driver"
 )
 
 func main() {
@@ -20,6 +22,10 @@ func main() {
 		os.Exit(1)
 	}
 
+}
+
+type ApiConfig struct {
+	DB *driver.DB
 }
 
 func run() error {
@@ -60,6 +66,35 @@ func run() error {
 		log.Fatal("port is not found in env")
 	}
 
+	// dbType := os.Getenv("DATABASE_TYPE")
+	dbHost := os.Getenv("DATABASE_HOST")
+	dbUser := os.Getenv("DATABASE_USER")
+	dbPort := os.Getenv("DATABASE_PORT")
+	dbPw := os.Getenv("DATABASE_PASS")
+	dbName := os.Getenv("DATABASE_NAME")
+	dbSSL := os.Getenv("DATABASE_SSL_MODE")
+
+	dsnString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s timezone=UTC connect_timeout=5",
+		dbHost, dbPort, dbUser, dbPw, dbName, dbSSL,
+	)
+	if dsnString == "" {
+		log.Fatal("invalid DSN string")
+	}
+
+	db, err := driver.ConnectPostgres(dsnString)
+	if err != nil {
+		log.Fatal("Cannot connect to database!", err)
+	}
+
+	apiCfg := ApiConfig{
+		DB: db,
+	}
+
+	app = &apiCfg
+
+	repo := NewPostgresqlHandlers(db, app)
+	NewHandlers(repo, app)
+
 	mux := chi.NewRouter()
 
 	mux.Use(cors.Handler(cors.Options{
@@ -74,6 +109,8 @@ func run() error {
 	v1 := chi.NewRouter()
 	v1.Get("/healthz", handlerReadiness)
 	v1.Get("/err", handlerErr)
+	v1.Post("/users", repo.handlerCreateUser)
+	v1.Get("/users", repo.handlerGetUser)
 
 	mux.Mount("/v1", v1)
 
