@@ -1,0 +1,6 @@
+sql(`
+    CREATE TRIGGER set_timestamp
+        BEFORE UPDATE on feed_follows
+        FOR EACH ROW
+    EXECUTE PROCEDURE trigger_set_timestamp();
+`)

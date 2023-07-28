@@ -1,0 +1,14 @@
+sql(`
+    -- Create the sequence
+    CREATE SEQUENCE feed_follows_id_seq;
+
+    -- Drop the primary key constraint
+    ALTER TABLE "feed_follows" DROP CONSTRAINT "feed_follows_pkey";
+
+    -- Change the data type of the column and set the default value
+    ALTER TABLE "feed_follows" ALTER COLUMN "id" TYPE integer USING "id"::integer;
+    ALTER TABLE "feed_follows" ALTER COLUMN "id" SET DEFAULT nextval('feed_follows_id_seq'::regclass);
+
+    -- Add the primary key constraint back
+    ALTER TABLE "feed_follows" ADD PRIMARY KEY ("id");
+`)

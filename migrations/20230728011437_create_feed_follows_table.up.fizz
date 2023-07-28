@@ -1,0 +1,10 @@
+sql(`CREATE TABLE feed_follows (
+    id INT PRIMARY KEY, 
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    feed_id INT NOT NULL REFERENCES feeds(id) ON DELETE CASCADE,
+    UNIQUE(user_id, feed_id),
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+    )`)
+
+

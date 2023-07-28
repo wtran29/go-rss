@@ -62,9 +62,38 @@ $$;
 
 ALTER FUNCTION public.trigger_set_timestamp() OWNER TO postgres;
 
+--
+-- Name: feed_follows_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.feed_follows_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.feed_follows_id_seq OWNER TO postgres;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
+
+--
+-- Name: feed_follows; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.feed_follows (
+    id integer DEFAULT nextval('public.feed_follows_id_seq'::regclass) NOT NULL,
+    user_id integer NOT NULL,
+    feed_id integer NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.feed_follows OWNER TO postgres;
 
 --
 -- Name: feeds; Type: TABLE; Schema: public; Owner: postgres
@@ -74,7 +103,7 @@ CREATE TABLE public.feeds (
     id integer NOT NULL,
     name character varying(255),
     url character varying(255),
-    user_id integer NOT NULL,
+    user_id integer,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
@@ -167,6 +196,22 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 
 --
+-- Name: feed_follows feed_follows_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.feed_follows
+    ADD CONSTRAINT feed_follows_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: feed_follows feed_follows_user_id_feed_id_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.feed_follows
+    ADD CONSTRAINT feed_follows_user_id_feed_id_key UNIQUE (user_id, feed_id);
+
+
+--
 -- Name: feeds feeds_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -198,6 +243,13 @@ CREATE UNIQUE INDEX schema_migration_version_idx ON public.schema_migration USIN
 
 
 --
+-- Name: feed_follows set_timestamp; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER set_timestamp BEFORE UPDATE ON public.feed_follows FOR EACH ROW EXECUTE FUNCTION public.trigger_set_timestamp();
+
+
+--
 -- Name: feeds set_timestamp; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -209,6 +261,22 @@ CREATE TRIGGER set_timestamp BEFORE UPDATE ON public.feeds FOR EACH ROW EXECUTE 
 --
 
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON public.users FOR EACH ROW EXECUTE FUNCTION public.trigger_set_timestamp();
+
+
+--
+-- Name: feed_follows feed_follows_feed_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.feed_follows
+    ADD CONSTRAINT feed_follows_feed_id_fkey FOREIGN KEY (feed_id) REFERENCES public.feeds(id) ON DELETE CASCADE;
+
+
+--
+-- Name: feed_follows feed_follows_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.feed_follows
+    ADD CONSTRAINT feed_follows_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --
