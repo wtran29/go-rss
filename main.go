@@ -110,7 +110,12 @@ func run() error {
 	v1.Get("/healthz", handlerReadiness)
 	v1.Get("/err", handlerErr)
 	v1.Post("/users", repo.handlerCreateUser)
-	v1.Get("/users", repo.handlerGetUser)
+	v1.Get("/users", repo.middlewareAuth(repo.handlerGetUser))
+	v1.Post("/feeds", repo.middlewareAuth(repo.handlerCreateFeed))
+	v1.Get("/feeds", repo.handlerGetFeeds)
+	v1.Post("/feed_follows", repo.middlewareAuth(repo.handlerCreateFeedFollow))
+	v1.Get("/feed_follows", repo.middlewareAuth(repo.handlerGetFeedFollows))
+	v1.Delete("/feed_follows/{feedFollowID}", repo.middlewareAuth(repo.handlerDeleteFeedFollow))
 
 	mux.Mount("/v1", v1)
 
