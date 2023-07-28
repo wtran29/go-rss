@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/wtran29/go-rss/internal/auth"
 	"github.com/wtran29/go-rss/internal/driver"
 	"github.com/wtran29/go-rss/internal/models"
 	"github.com/wtran29/go-rss/internal/repository"
@@ -76,18 +75,7 @@ func (repo *DBRepo) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
 	writeJson(w, 201, payload)
 }
 
-func (repo *DBRepo) handlerGetUser(w http.ResponseWriter, r *http.Request) {
-	apiKey, err := auth.GetAPIKey(r.Header)
-	if err != nil {
-		errorJSON(w, fmt.Sprintf("Auth error: %v", err), 403)
-		return
-	}
-
-	user, err := repo.DB.GetUserByAPIKey(apiKey)
-	if err != nil {
-		errorJSON(w, fmt.Sprintf("Could not get user: %v", err), 400)
-		return
-	}
+func (repo *DBRepo) handlerGetUser(w http.ResponseWriter, r *http.Request, user models.User) {
 
 	payload := jsonResponse{
 		Error:   false,
