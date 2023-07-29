@@ -29,6 +29,7 @@ type ApiConfig struct {
 }
 
 func run() error {
+
 	log := log.New(os.Stdout, "GO-RSS : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
 
 	var cfg struct {
@@ -95,6 +96,8 @@ func run() error {
 	repo := NewPostgresqlHandlers(db, app)
 	NewHandlers(repo, app)
 
+	go startScraping(repo, 10, time.Minute)
+
 	mux := chi.NewRouter()
 
 	mux.Use(cors.Handler(cors.Options{
@@ -116,6 +119,7 @@ func run() error {
 	v1.Post("/feed_follows", repo.middlewareAuth(repo.handlerCreateFeedFollow))
 	v1.Get("/feed_follows", repo.middlewareAuth(repo.handlerGetFeedFollows))
 	v1.Delete("/feed_follows/{feedFollowID}", repo.middlewareAuth(repo.handlerDeleteFeedFollow))
+	v1.Get("/posts", repo.middlewareAuth(repo.handlerGetPostsByUser))
 
 	mux.Mount("/v1", v1)
 
