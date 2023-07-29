@@ -19,7 +19,7 @@ func (repo *DBRepo) handlerCreateFeed(w http.ResponseWriter, r *http.Request, us
 	params := parameters{}
 	err := decoder.Decode(&params)
 	if err != nil {
-		errorJSON(w, fmt.Sprintf("Error parsing json: %v", err), 400)
+		errorJSON(w, fmt.Sprintf("Error parsing json: %v", err), http.StatusInternalServerError)
 		return
 	}
 	fmt.Println(params.Name)
