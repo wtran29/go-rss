@@ -10,4 +10,8 @@ type DatabaseRepo interface {
 	CreateFeedFollow(ff models.FeedFollow) (models.FeedFollow, error)
 	GetFeedFollowsByUserID(uid int) ([]models.FeedFollow, error)
 	DeleteFeedFollow(id, uid int) error
+	GetNextFeedsToFetch(limit int) ([]models.Feed, error)
+	MarkFeedsAsFetched(id int) (models.Feed, error)
+	CreatePost(p models.Post) (models.Post, error)
+	GetPostsByUser(uid, lim int) ([]models.Post, error)
 }
