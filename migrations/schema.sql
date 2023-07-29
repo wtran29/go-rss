@@ -105,7 +105,8 @@ CREATE TABLE public.feeds (
     url character varying(255),
     user_id integer,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    last_fetched_at timestamp without time zone DEFAULT '0001-01-01 00:00:01'::timestamp without time zone NOT NULL
 );
 
 
@@ -132,6 +133,24 @@ ALTER TABLE public.feeds_id_seq OWNER TO postgres;
 
 ALTER SEQUENCE public.feeds_id_seq OWNED BY public.feeds.id;
 
+
+--
+-- Name: posts; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.posts (
+    id uuid NOT NULL,
+    feed_id integer NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    title text NOT NULL,
+    description text,
+    url character varying(255),
+    published_at timestamp without time zone
+);
+
+
+ALTER TABLE public.posts OWNER TO postgres;
 
 --
 -- Name: schema_migration; Type: TABLE; Schema: public; Owner: postgres
@@ -220,6 +239,22 @@ ALTER TABLE ONLY public.feeds
 
 
 --
+-- Name: posts posts_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.posts
+    ADD CONSTRAINT posts_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: posts posts_url_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.posts
+    ADD CONSTRAINT posts_url_key UNIQUE (url);
+
+
+--
 -- Name: schema_migration schema_migration_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -285,6 +320,14 @@ ALTER TABLE ONLY public.feed_follows
 
 ALTER TABLE ONLY public.feeds
     ADD CONSTRAINT feeds_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: posts posts_feed_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.posts
+    ADD CONSTRAINT posts_feed_id_fkey FOREIGN KEY (feed_id) REFERENCES public.feeds(id) ON DELETE CASCADE;
 
 
 --

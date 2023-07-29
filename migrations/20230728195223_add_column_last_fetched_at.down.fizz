@@ -1,0 +1,1 @@
+drop_column("feeds", "last_fetched_at")
